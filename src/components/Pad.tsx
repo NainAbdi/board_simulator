@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import '../styles/DraggableResizableSquare.css'; // Create a CSS file for styles
+import '../styles/Pad.css'; // Create a CSS file for styles
 
-const DraggableResizableSquare = () => {
+const Pad = () => {
   const [position, setPosition] = useState({ x: 100, y: 100 });
   const [size, setSize] = useState({ width: 100, height: 100 });
   const [isDragging, setIsDragging] = useState(false);
@@ -71,4 +71,4 @@ const DraggableResizableSquare = () => {
   );
 };
 
-export default DraggableResizableSquare;
+export default Pad;
