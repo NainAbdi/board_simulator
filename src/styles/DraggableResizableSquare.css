@@ -1,0 +1,17 @@
+/* DraggableResizableSquare.css */
+.draggable-square {
+  position: absolute;
+  background-color: rgba(0, 150, 255, 0.5);
+  border: 2px solid blue;
+  cursor: move;
+}
+
+.resizer {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+}
