@@ -1,0 +1,7 @@
+/* src/styles/CircuitBoard.css */
+.circuit-board {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+}
