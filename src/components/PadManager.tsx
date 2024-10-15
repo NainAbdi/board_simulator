@@ -11,7 +11,17 @@ type PadInstance = {
 
 const PadManager = () => {
     const [instances, setInstances] = useState<PadInstance[]>([]); // State for Pad instances
+    const [deleteIndex, setDeleteIndex] = useState<number | ''>(''); // State for the delete index
 
+     // Function to delete an instance based on the index
+    const deleteInstance = () => {
+        const index = typeof deleteIndex === 'number' ? deleteIndex : parseInt(deleteIndex as string);
+        if (!isNaN(index) && index >= 0 && index < instances.length) {
+          setInstances(instances.filter((_, i) => i !== index));
+        }
+        // Clear the input field after deletion
+        setDeleteIndex('');
+      };
     const addInstance = () => {
         const newInstance: PadInstance = {
             id: instances.length, // Assign a unique ID
@@ -21,14 +31,21 @@ const PadManager = () => {
         };
         setInstances([...instances, newInstance]); // Add the new instance
     };
-
-     const deleteInstance = (index: number) => {
-        setInstances(instances.filter((_, i) => i !== index));
-      };
     
     return (
         <div>
             <button onClick={addInstance}>Add Instance</button>
+
+
+            <div>
+                <input
+                  type="number"
+                  value={deleteIndex}
+                  onChange={(e) => setDeleteIndex(e.target.value ? parseInt(e.target.value) : '')} // Convert to number or set to empty string
+                  placeholder="Enter index to delete"
+                />
+                <button onClick={deleteInstance}>Delete Instance</button>
+              </div>
             
             {instances.map((instance, index) => (
             <Pad
