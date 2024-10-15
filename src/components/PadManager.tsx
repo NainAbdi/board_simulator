@@ -17,13 +17,19 @@ const PadManager = () => {
             id: instances.length, // Assign a unique ID
             position: { x: 100, y: 100 }, // Default starting position
             size: { width: 100, height: 100 }, // Default size
-            maxPorts: 2, // Default maximum ports
+            maxPorts: 6, // Default maximum ports
         };
         setInstances([...instances, newInstance]); // Add the new instance
     };
+
+     const deleteInstance = (index: number) => {
+        setInstances(instances.filter((_, i) => i !== index));
+      };
+    
     return (
         <div>
             <button onClick={addInstance}>Add Instance</button>
+            
             {instances.map((instance, index) => (
             <Pad
                 key={instance.id}

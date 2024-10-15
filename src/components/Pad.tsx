@@ -8,8 +8,8 @@ type PadProps = {
 };
 
 const Pad: React.FC<PadProps> = ({ position, size, maxPorts }) => {
-  const [currentposition, setPosition] = useState({ x: 100, y: 100 });
-  const [currentsize, setSize] = useState({ width: 100, height: 100 });
+  const [currentposition, setPosition] = useState(position);
+  const [currentsize, setSize] = useState(size);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -56,6 +56,45 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts }) => {
     };
   }, [isDragging, isResizing]);
 
+  // Calculate positions of the ports along the pad's borders
+  const calculatePortPositions = () => {
+      const positions = [];
+      const { width, height } = currentsize;
+      const perimeter = 2 * (width + height); // Total perimeter of the pad
+      const spacing = perimeter / maxPorts; // Distance between each port
+
+      for (let i = 0; i < maxPorts; i++) {
+          const distance = i * spacing;
+          let x = 0;
+          let y = 0;
+
+          // Determine the port's position based on distance along the perimeter
+          if (distance < width) {
+              // Top edge
+              x = distance;
+              y = 0;
+          } else if (distance < width + height) {
+              // Right edge
+              x = width;
+              y = distance - width;
+          } else if (distance < 2 * width + height) {
+              // Bottom edge
+              x = 2 * width + height - distance;
+              y = height;
+          } else {
+              // Left edge
+              x = 0;
+              y = perimeter - distance;
+          }
+
+          positions.push({ x, y }); // Add calculated position to the array
+      }
+
+      return positions;
+  };
+
+  const portPositions = calculatePortPositions(); // Get the positions of the ports
+
   return (
     <div>
       <div
@@ -68,6 +107,21 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts }) => {
         }}
         onMouseDown={handleMouseDown}
       >
+
+        {portPositions.map((port, index) => (
+          <div
+            key={index}
+            className="port"
+            style={{
+              position: 'absolute',
+              width: 10,
+              height: 10,
+              backgroundColor: 'black',
+              left: port.x - 5, // Offset to center the square
+              top: port.y - 5,  // Offset to center the square
+            }}
+              />
+            ))}
         <div
           className="resizer"
           onMouseDown={handleResizeMouseDown}
