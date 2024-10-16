@@ -52,21 +52,28 @@ const PadManager = () => {
     }
   };
 
+  // Add event listener for clicks to add new line segments while tracing
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleClick = (e: MouseEvent) => {
       if (currentTrace) {
-        const newPoint = { x: e.clientX, y: e.clientY };
+        const svgElement = document.querySelector('.trace-layer') as SVGElement;
+        if (!svgElement) return;
+
+        const rect = svgElement.getBoundingClientRect();
+        const newPoint = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
         handleContinueTrace(newPoint);
       }
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('click', handleClick);
+
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('click', handleClick);
     };
   }, [currentTrace]);
-
-
     return (
         <div>
             <button onClick={addInstance}>Add Instance</button>
