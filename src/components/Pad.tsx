@@ -5,9 +5,11 @@ type PadProps = {
     position: { x: number; y: number };
     size: { width: number; height: number };
     maxPorts: number; // New prop for maximum ports
+    onStartTrace: (startPoint: { x: number; y: number }) => void;
+    onEndTrace: (endPoint: { x: number; y: number }) => void;
 };
 
-const Pad: React.FC<PadProps> = ({ position, size, maxPorts }) => {
+const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEndTrace }) => {
   const [currentposition, setPosition] = useState(position);
   const [currentsize, setSize] = useState(size);
   const [isDragging, setIsDragging] = useState(false);
@@ -119,6 +121,11 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts }) => {
               backgroundColor: 'black',
               left: port.x - 5, // Offset to center the square
               top: port.y - 5,  // Offset to center the square
+              cursor: 'pointer',
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              onStartTrace({ x: currentposition.x + port.x, y: currentposition.y + port.y });
             }}
               />
             ))}

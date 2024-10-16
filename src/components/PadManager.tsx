@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Pad from './Pad';
 
 // Add type of instance for the array
@@ -11,6 +11,8 @@ type PadInstance = {
 
 const PadManager = () => {
     const [instances, setInstances] = useState<PadInstance[]>([]); // State for Pad instances
+  const [currentTrace, setCurrentTrace] = useState<{ points: { x: number; y: number }[] } | null>(null);
+  const [traces, setTraces] = useState<{ points: { x: number; y: number }[] }[]>([]);
     const [deleteIndex, setDeleteIndex] = useState<number | ''>(''); // State for the delete index
 
      // Function to delete an instance based on the index
@@ -31,12 +33,63 @@ const PadManager = () => {
         };
         setInstances([...instances, newInstance]); // Add the new instance
     };
-    
+
+  const handleStartTrace = (startPoint: { x: number; y: number }) => {
+    setCurrentTrace({ points: [startPoint] });
+  };
+
+  const handleContinueTrace = (point: { x: number; y: number }) => {
+    if (currentTrace) {
+      setCurrentTrace({ points: [...currentTrace.points, point] });
+    }
+  };
+
+
+  const handleEndTrace = (endPoint: { x: number; y: number }) => {
+    if (currentTrace) {
+      setTraces([...traces, { points: [...currentTrace.points, endPoint] }]);
+      setCurrentTrace(null);
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (currentTrace) {
+        const newPoint = { x: e.clientX, y: e.clientY };
+        handleContinueTrace(newPoint);
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [currentTrace]);
+
+
     return (
         <div>
             <button onClick={addInstance}>Add Instance</button>
-
-
+          <svg className="trace-layer" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+            {traces.map((trace, index) => (
+              <polyline
+                key={index}
+                points={trace.points.map(p => `${p.x},${p.y}`).join(' ')}
+                stroke="black"
+                strokeWidth="2"
+                fill="none"
+              />
+            ))}
+            {currentTrace && (
+              <polyline
+                points={currentTrace.points.map(p => `${p.x},${p.y}`).join(' ')}
+                stroke="black"
+                strokeWidth="2"
+                fill="none"
+              />
+            )}
+          </svg>
+          
             <div>
                 <input
                   type="number"
@@ -53,6 +106,8 @@ const PadManager = () => {
                 position={instance.position}
                 size={instance.size}
                 maxPorts={instance.maxPorts}
+              onStartTrace={handleStartTrace}
+              onEndTrace={handleEndTrace}
             />
             ))}
         </div>
