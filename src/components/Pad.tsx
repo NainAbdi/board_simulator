@@ -125,7 +125,12 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEnd
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
-              onStartTrace({ x: currentposition.x + port.x, y: currentposition.y + port.y });
+              const confirmAction = window.confirm('Would you like to start or end a trace?'); // * Added confirmation dialog
+              if (confirmAction) { // * Check if the user confirmed
+                onStartTrace({ x: currentposition.x + port.x, y: currentposition.y + port.y }); // Start the trace
+              } else {
+                onEndTrace({ x: currentposition.x + port.x, y: currentposition.y + port.y }); // End the trace
+              }
             }}
               />
             ))}
