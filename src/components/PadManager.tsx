@@ -1,45 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import Pad from './Pad';
 
-// Add type of instance for the array
 type PadInstance = {
-    id: number; // Unique ID for each pad
-    position: { x: number; y: number }; // Position of the pad
-    size: { width: number; height: number }; // Size of the pad
-    maxPorts: number; // Maximum number of ports
+    id: number;
+    position: { x: number; y: number };
+    size: { width: number; height: number };
+    maxPorts: number;
 };
 
 const PadManager = () => {
-    // Pad management state
-    const [instances, setInstances] = useState<PadInstance[]>([]); // State for Pad instances
-
-    // Trace management state
+    const [instances, setInstances] = useState<PadInstance[]>([]);
     const [currentTrace, setCurrentTrace] = useState<{ points: { x: number; y: number }[] } | null>(null);
-    const [traces, setTraces] = useState<{ points: { x: number; y: number }[] }[]>([]); // State for traces
-    const [deleteIndex, setDeleteIndex] = useState<number | ''>(''); // State for the delete index
+    const [traces, setTraces] = useState<{ points: { x: number; y: number }[] }[]>([]);
+    const [deleteIndex, setDeleteIndex] = useState<number | ''>('');
 
-    // Function to delete an instance based on the index
     const deleteInstance = () => {
         const index = typeof deleteIndex === 'number' ? deleteIndex : parseInt(deleteIndex as string);
         if (!isNaN(index) && index >= 0 && index < instances.length) {
             setInstances(instances.filter((_, i) => i !== index));
         }
-        // Clear the input field after deletion
         setDeleteIndex('');
     };
 
-    // Function to add a new Pad instance
     const addInstance = () => {
         const newInstance: PadInstance = {
-            id: instances.length, // Assign a unique ID
-            position: { x: 100, y: 100 }, // Default starting position
-            size: { width: 100, height: 100 }, // Default size
-            maxPorts: 6, // Default maximum ports
+            id: instances.length,
+            position: { x: 100, y: 100 },
+            size: { width: 100, height: 100 },
+            maxPorts: 6,
         };
-        setInstances([...instances, newInstance]); // Add the new instance
+        setInstances([...instances, newInstance]);
     };
 
-    // Trace management functions
     const handleStartTrace = (startPoint: { x: number; y: number }) => {
         setCurrentTrace({ points: [startPoint] });
     };
@@ -57,7 +49,6 @@ const PadManager = () => {
         }
     };
 
-    // Function to handle trace deletion prompt
     const handleTraceClick = (index: number) => {
         const confirmDelete = window.confirm("Would you like to delete this trace?");
         if (confirmDelete) {
@@ -65,7 +56,6 @@ const PadManager = () => {
         }
     };
 
-    // Add event listener for clicks to add new line segments while tracing
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
             if (currentTrace) {
@@ -91,7 +81,10 @@ const PadManager = () => {
     return (
         <div>
             <button onClick={addInstance}>Add Instance</button>
-            <svg className="trace-layer" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+            <svg
+                className="trace-layer"
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            >
                 {traces.map((trace, index) => (
                     <polyline
                         key={index}
@@ -99,7 +92,7 @@ const PadManager = () => {
                         stroke="black"
                         strokeWidth="2"
                         fill="none"
-                        onClick={() => handleTraceClick(index)} // Add click handler for trace
+                        onClick={() => handleTraceClick(index)}
                     />
                 ))}
                 {currentTrace && (
@@ -116,7 +109,7 @@ const PadManager = () => {
                 <input
                     type="number"
                     value={deleteIndex}
-                    onChange={(e) => setDeleteIndex(e.target.value ? parseInt(e.target.value) : '')} // Convert to number or set to empty string
+                    onChange={(e) => setDeleteIndex(e.target.value ? parseInt(e.target.value) : '')}
                     placeholder="Enter index to delete"
                 />
                 <button onClick={deleteInstance}>Delete Instance</button>
