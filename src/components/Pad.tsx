@@ -1,27 +1,35 @@
 import React, { useState } from 'react';
 import '../styles/Pad.css';
 
-
 type PadProps = {
     position: { x: number; y: number };
     size: { width: number; height: number };
     maxPorts: number;
     onStartTrace: (startPoint: { x: number; y: number }) => void;
     onEndTrace: (endPoint: { x: number; y: number }) => void;
-    componentProps?: any; // Add this line to include componentProps
+    componentProperties?: Record<string, any>; // Properties to be displayed on hover
 };
 
-const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEndTrace }) => {
-    const [currentposition, setPosition] = useState(position);
-    const [currentsize, setSize] = useState(size);
+const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEndTrace, componentProperties }) => {
+    const [currentPosition, setPosition] = useState(position);
+    const [currentSize, setSize] = useState(size);
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
+    const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+
+    const handleMouseEnter = () => {
+        setIsTooltipVisible(true);
+    };
+
+    const handleMouseLeave = () => {
+        setIsTooltipVisible(false);
+    };
 
     const handleMouseDown = (e: React.MouseEvent) => {
         e.preventDefault();
         setIsDragging(true);
-        setOffset({ x: e.clientX - currentposition.x, y: e.clientY - currentposition.y });
+        setOffset({ x: e.clientX - currentPosition.x, y: e.clientY - currentPosition.y });
     };
 
     const handleMouseUp = () => {
@@ -43,8 +51,8 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEnd
     const handleResizeMouseMove = (e: MouseEvent) => {
         if (isResizing) {
             setSize({
-                width: Math.max(50, e.clientX - currentposition.x),
-                height: Math.max(50, e.clientY - currentposition.y),
+                width: Math.max(50, e.clientX - currentPosition.x),
+                height: Math.max(50, e.clientY - currentPosition.y),
             });
         }
     };
@@ -62,7 +70,7 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEnd
 
     const calculatePortPositions = () => {
         const positions = [];
-        const { width, height } = currentsize;
+        const { width, height } = currentSize;
         const perimeter = 2 * (width + height);
         const spacing = perimeter / maxPorts;
 
@@ -94,14 +102,23 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEnd
     const portPositions = calculatePortPositions();
 
     return (
-        <div>
+        <div
+            className="draggable-square-wrapper"
+            style={{
+                position: 'absolute',
+                left: currentPosition.x,
+                top: currentPosition.y,
+                width: currentSize.width,
+                height: currentSize.height,
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+        >
             <div
                 className="draggable-square"
                 style={{
-                    left: currentposition.x,
-                    top: currentposition.y,
-                    width: currentsize.width,
-                    height: currentsize.height,
+                    width: currentSize.width,
+                    height: currentSize.height,
                 }}
                 onMouseDown={handleMouseDown}
             >
@@ -122,9 +139,9 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEnd
                             e.stopPropagation();
                             const confirmAction = window.confirm('Would you like to start or end a trace?');
                             if (confirmAction) {
-                                onStartTrace({ x: currentposition.x + port.x, y: currentposition.y + port.y });
+                                onStartTrace({ x: currentPosition.x + port.x, y: currentPosition.y + port.y });
                             } else {
-                                onEndTrace({ x: currentposition.x + port.x, y: currentposition.y + port.y });
+                                onEndTrace({ x: currentPosition.x + port.x, y: currentPosition.y + port.y });
                             }
                         }}
                     />
@@ -134,6 +151,32 @@ const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEnd
                     onMouseDown={handleResizeMouseDown}
                 />
             </div>
+
+            {/* Tooltip for displaying component properties */}
+            {isTooltipVisible && (
+                <div
+                    className="tooltip"
+                    style={{
+                        position: 'absolute',
+                        top: -60,
+                        left: 0,
+                        backgroundColor: 'lightgrey',
+                        padding: '5px',
+                        borderRadius: '4px',
+                        zIndex: 10,
+                    }}
+                >
+                    <strong>Component Properties:</strong>
+                    <ul style={{ margin: 0, padding: 0, listStyleType: 'none' }}>
+                        {componentProperties &&
+                            Object.entries(componentProperties).map(([key, value], idx) => (
+                                <li key={idx}>
+                                    {key}: {String(value)}
+                                </li>
+                            ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 };
