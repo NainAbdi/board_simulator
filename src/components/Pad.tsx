@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Pad.css';
+import CircuitJS from 'circuit-js';
 
 type PadProps = {
     position: { x: number; y: number };

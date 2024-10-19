@@ -8,12 +8,19 @@ type PadInstance = {
     maxPorts: number;
 };
 
+type Trace = {
+    points: { x: number; y: number }[];
+    resistance: number; // Resistance in ohms
+};
+
 const PadManager = () => {
     const [instances, setInstances] = useState<PadInstance[]>([]);
-    const [currentTrace, setCurrentTrace] = useState<{ points: { x: number; y: number }[] } | null>(null);
-    const [traces, setTraces] = useState<{ points: { x: number; y: number }[] }[]>([]);
+    const [currentTrace, setCurrentTrace] = useState<Trace | null>(null);
+    const [traces, setTraces] = useState<Trace[]>([]);
     const [deleteIndex, setDeleteIndex] = useState<number | ''>('');
+    const [hoveredResistance, setHoveredResistance] = useState<number |        null>(null);
 
+    
     const deleteInstance = () => {
         const index = typeof deleteIndex === 'number' ? deleteIndex : parseInt(deleteIndex as string);
         if (!isNaN(index) && index >= 0 && index < instances.length) {
@@ -31,20 +38,23 @@ const PadManager = () => {
         };
         setInstances([...instances, newInstance]);
     };
-
     const handleStartTrace = (startPoint: { x: number; y: number }) => {
-        setCurrentTrace({ points: [startPoint] });
+        setCurrentTrace({ points: [startPoint], resistance: 0 }); // 0 ohms for an ideal wire
     };
 
     const handleContinueTrace = (point: { x: number; y: number }) => {
         if (currentTrace) {
-            setCurrentTrace({ points: [...currentTrace.points, point] });
+            setCurrentTrace({ points: [...currentTrace.points, point], resistance: currentTrace.resistance });
         }
     };
 
     const handleEndTrace = (endPoint: { x: number; y: number }) => {
         if (currentTrace) {
-            setTraces([...traces, { points: [...currentTrace.points, endPoint] }]);
+            const newTrace: Trace = {
+                points: [...currentTrace.points, endPoint],
+                resistance: 0 // Default resistance
+            };
+            setTraces([...traces, newTrace]);
             setCurrentTrace(null);
         }
     };
@@ -78,6 +88,32 @@ const PadManager = () => {
         };
     }, [currentTrace]);
 
+    // Detect hovering over traces and show resistance value
+    const handleMouseMove = (e: MouseEvent) => {
+        const hoverPoint = { x: e.clientX, y: e.clientY };
+        let foundResistance = null;
+        for (let trace of traces) {
+            for (let point of trace.points) {
+                const distance = Math.sqrt(
+                    Math.pow(point.x - hoverPoint.x, 2) + Math.pow(point.y - hoverPoint.y, 2)
+                );
+                if (distance < 10) { // Adjust hover detection threshold as needed
+                    foundResistance = trace.resistance;
+                    break;
+                }
+            }
+        }
+        setHoveredResistance(foundResistance);
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousemove', handleMouseMove);
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, [traces]);
+
+
     return (
         <div>
             <button onClick={addInstance}>Add Instance</button>
@@ -104,6 +140,14 @@ const PadManager = () => {
                     />
                 )}
             </svg>
+
+
+            {hoveredResistance !== null && (
+                <div className="tooltip" style={{ position: 'absolute', left: 0, top: 0 }}>
+                    Resistance: {hoveredResistance.toFixed(2)} Ω
+                </div>
+            )}
+
 
             <div>
                 <input
