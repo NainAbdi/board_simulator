@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Pad.css';
-import CircuitJS from 'circuit-js';
+
 
 type PadProps = {
     position: { x: number; y: number };
@@ -8,6 +8,7 @@ type PadProps = {
     maxPorts: number;
     onStartTrace: (startPoint: { x: number; y: number }) => void;
     onEndTrace: (endPoint: { x: number; y: number }) => void;
+    componentProps?: any; // Add this line to include componentProps
 };
 
 const Pad: React.FC<PadProps> = ({ position, size, maxPorts, onStartTrace, onEndTrace }) => {

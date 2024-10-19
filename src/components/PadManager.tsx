@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Pad from './Pad';
+import { components } from './Components'; // Import component properties
 
 type PadInstance = {
     id: number;
     position: { x: number; y: number };
     size: { width: number; height: number };
     maxPorts: number;
+    componentProps?: any; // Add this line to include componentProps
 };
 
 type Trace = {
@@ -30,6 +32,10 @@ const PadManager = () => {
     };
 
     const addInstance = () => {
+
+        const componentType = prompt("Enter component type (e.g., resistor, capacitor):");
+        const componentProps = components[componentType as keyof typeof components];
+
         const newInstance: PadInstance = {
             id: instances.length,
             position: { x: 100, y: 100 },
@@ -165,8 +171,9 @@ const PadManager = () => {
                     position={instance.position}
                     size={instance.size}
                     maxPorts={instance.maxPorts}
-                    onStartTrace={handleStartTrace}
+                    onStartTrace={(startPoint)                                                 =>handleStartTrace(startPoint)} 
                     onEndTrace={handleEndTrace}
+                    componentProps={instance.componentProps} // Pass properties
                 />
             ))}
         </div>
