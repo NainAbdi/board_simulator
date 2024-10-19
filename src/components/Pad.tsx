@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Pad.css';
+import { components } from './Components'; // Import component properties
 
 type PadProps = {
     position: { x: number; y: number };

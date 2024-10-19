@@ -41,6 +41,7 @@ const PadManager = () => {
             position: { x: 100, y: 100 },
             size: { width: 100, height: 100 },
             maxPorts: 6,
+            componentProps: componentProps, // Add this line to set the component properties
         };
         setInstances([...instances, newInstance]);
     };
@@ -173,7 +174,7 @@ const PadManager = () => {
                     maxPorts={instance.maxPorts}
                     onStartTrace={(startPoint)                                                 =>handleStartTrace(startPoint)} 
                     onEndTrace={handleEndTrace}
-                    componentProps={instance.componentProps} // Pass properties
+                    componentProperties={instance.componentProps} // Pass properties to Pad
                 />
             ))}
         </div>
